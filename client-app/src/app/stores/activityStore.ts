@@ -4,7 +4,7 @@ import { Activity } from "../models/activity";
 import { is } from "@babel/types";
 
 export default class ActivityStore {
-activityRegistry = new Map<string, Activity>(); // javascript Map 
+activityRegistry = new Map<string, Activity>(); // javascript Map with key and value
 selectedActivity: Activity|undefined = undefined;
 editMode = false;
 loading = false;
@@ -17,6 +17,16 @@ loadingInitial= true;
     get activitiesByDate() {
         return Array.from(this.activityRegistry.values()).sort((a,b) => 
         Date.parse(a.date)-Date.parse(b.date));
+    }
+
+    get groupedActivities() {
+        return Object.entries(
+            this.activitiesByDate.reduce((activities, activity) => {
+                const date = activity.date;
+                activities[date] = activities[date] ? [...activities[date], activity] :[activity];
+                return activities;
+            }, {} as {[key: string]: Activity[]})
+        )
     }
 
  loadActivities = async () => {
